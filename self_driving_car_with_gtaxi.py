@@ -36,7 +36,7 @@ parser.add_argument('--exploration_noise', default=0.1, type=float)
 parser.add_argument('--max_episode', default=100000, type=int) # num of games
 
 # render
-parser.add_argument('--render', default=True, type=bool) # show UI or not
+parser.add_argument('--render', default=False, type=bool) # show UI or not
 parser.add_argument('--render_interval', default=0, type=int)
 
 
