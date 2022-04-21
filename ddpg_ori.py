@@ -53,18 +53,12 @@ args = parser.parse_args()
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 script_name = os.path.basename(__file__)
-env = gym.make(args.env_name)
-
+"""
 if args.seed:
     env.seed(args.random_seed)
     torch.manual_seed(args.random_seed)
     np.random.seed(args.random_seed)
-
-state_dim = env.observation_space.shape[0]
-action_dim = env.action_space.shape[0]
-max_action = float(env.action_space.high[0])
-min_Val = torch.tensor(1e-7).float().to(device) # min value
-
+"""
 directory = './exp' + script_name + args.env_name +'./'
 
 class Replay_buffer():

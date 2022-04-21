@@ -41,7 +41,7 @@ parser.add_argument('--render_interval', default=0, type=int)
 
 
 # save
-parser.add_argument('--log_interval', default=200, type=int) #
+parser.add_argument('--log_interval', default=500, type=int) #
 
 args = parser.parse_args()
 
