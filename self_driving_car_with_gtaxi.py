@@ -32,11 +32,11 @@ parser.add_argument('--capacity', default=1000000, type=int)  # replay buffer si
 parser.add_argument('--update_iteration', default=200, type=int)
 parser.add_argument('--gamma', default=0.99, type=int) # discounted factor
 parser.add_argument('--batch_size', default=100, type=int) # mini batch size
-parser.add_argument('--exploration_noise', default=0.1, type=float)
+parser.add_argument('--exploration_noise', default=0.5, type=float)
 parser.add_argument('--max_episode', default=100000, type=int) # num of games
 
 # render
-parser.add_argument('--render', default=False, type=bool) # show UI or not
+parser.add_argument('--render', default=True, type=bool) # show UI or not
 parser.add_argument('--render_interval', default=0, type=int)
 
 
@@ -45,13 +45,20 @@ parser.add_argument('--log_interval', default=500, type=int) #
 
 args = parser.parse_args()
 
+def recover(l_action):
+    if  l_action[1] >0:
+        return np.array([l_action[0],l_action[1],0.])
+    elif l_action[1] < 0:
+        return np.array([l_action[0], 0., l_action[1]])
+    else:
+        return np.array([l_action[0], 0., 0.])
 
 def main():
     env = gym.make("CarRacing-v1")
 
     state_dim = reduce(lambda x,y : x*y , env.observation_space.shape)
-    action_dim = env.action_space.shape[0]
-    max_action = float(env.action_space.high[0])
+    action_dim = 2
+    max_action = 1.0
     #min_Val = torch.tensor(1e-7).float().to(device)  # min value
 
     current_path = os.getcwd()
@@ -70,7 +77,8 @@ def main():
             state = env.reset()
             for t in count():
                 action = agent.select_action(state)
-                next_state, reward, done, info = env.step(np.float32(action))
+                rpc_action = recover(action)
+                next_state, reward, done, info = env.step(np.float32(rpc_action))
                 ep_r += reward
                 env.render()
                 if done or t >= args.max_length_of_trajectory:
@@ -91,12 +99,13 @@ def main():
 
                 action = agent.select_action(state)
 
-                action = (action + np.random.normal(0, args.exploration_noise, size=env.action_space.shape[0])).clip(
-                    env.action_space.low, env.action_space.high)
+                action = (action + np.random.normal(0, args.exploration_noise, size=action_dim)).clip(
+                    np.array([-1,-1],float),  np.array([1,1],float))
+                rpc_action = recover(action)
 
-                next_state, reward, done, info = env.step(action)
+                next_state, reward, done, info = env.step(rpc_action)
                 if t in range(50):
-                    print(f"this episode step {t} {action}")
+                    print(f"this episode step {t} {action}  {rpc_action}")
                 if args.render and i >= args.render_interval : env.render()
                 agent.replay_buffer.push((state, next_state, action, reward, np.float(done)))
 
