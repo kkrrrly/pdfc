@@ -36,7 +36,7 @@ parser.add_argument('--exploration_noise', default=0.5, type=float)
 parser.add_argument('--max_episode', default=100000, type=int) # num of games
 
 # render
-parser.add_argument('--render', default=True, type=bool) # show UI or not
+parser.add_argument('--render', default=False, type=bool) # show UI or not
 parser.add_argument('--render_interval', default=0, type=int)
 
 
@@ -68,8 +68,7 @@ def main():
     if not os.path.exists(model_path) :
         os.mkdir(model_path)
 
-
-    agent = DDPG(state_dim, action_dim, max_action)
+    agent = DDPG(state_dim,action_dim,max_action,args.update_iteration,args.batch_size,args.gamma,args.tau, model_path)
     ep_r = 0
     if args.mode == 'test':
         agent.load()
@@ -110,6 +109,9 @@ def main():
                 agent.replay_buffer.push((state, next_state, action, reward, np.float(done)))
 
                 state = next_state
+                if total_reward <= -5:
+                    done = True
+
                 if done:
                     break
                 step += 1
