@@ -32,11 +32,11 @@ parser.add_argument('--capacity', default=1000000, type=int)  # replay buffer si
 parser.add_argument('--update_iteration', default=200, type=int)
 parser.add_argument('--gamma', default=0.99, type=int) # discounted factor
 parser.add_argument('--batch_size', default=100, type=int) # mini batch size
-parser.add_argument('--exploration_noise', default=0.5, type=float)
+parser.add_argument('--exploration_noise', default=0.2, type=float)
 parser.add_argument('--max_episode', default=100000, type=int) # num of games
 
 # render
-parser.add_argument('--render', default=False, type=bool) # show UI or not
+parser.add_argument('--render', default=True, type=bool) # show UI or not
 parser.add_argument('--render_interval', default=0, type=int)
 
 
@@ -87,7 +87,7 @@ def main():
                 state = next_state
 
     elif args.mode == 'train':
-        if args.isload : agent.load()
+        if args.isload : agent.load(model_path)
         total_step = 0
         for i in range(args.max_episode):
             total_reward = 0
@@ -109,7 +109,7 @@ def main():
                 agent.replay_buffer.push((state, next_state, action, reward, np.float(done)))
 
                 state = next_state
-                if total_reward <= -5:
+                if total_reward < 0:
                     done = True
 
                 if done:
@@ -122,7 +122,7 @@ def main():
            # "Total T: %d Episode Num: %d Episode T: %d Reward: %f
 
             if i % args.log_interval == 0:
-                agent.save()
+                agent.save(model_path)
     else:
         raise NameError("mode wrong!!!")
 

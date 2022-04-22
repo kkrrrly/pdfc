@@ -120,6 +120,7 @@ class DDPG(object):
         self.batch_size = batch_size
         self.gamma = gamma
         self.tau = tau
+        self.model_path = directory
 
     def select_action(self, state):
         state = torch.FloatTensor(state.reshape(1, -1)).to(device)
